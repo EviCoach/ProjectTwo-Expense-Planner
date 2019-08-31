@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+
 import './widgets/new_transaction.dart';
-import 'models/Transaction.dart';
 import './widgets/Transaction_list.dart';
+import './widgets/chart.dart';
+import 'models/Transaction.dart';
 
 void main() => runApp(MaterialApp(
       title: 'Personal Expenses',
       theme: ThemeData(
         primarySwatch: Colors.purple,
+        // accentColor: Colors.amber,
       ),
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     ));
 
@@ -21,20 +25,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final amountController = TextEditingController();
 
-  final List<Transaction> _userTransaction = [
-    Transaction(
-      id: 't1',
-      title: 'New Shoes',
-      amount: 90.99,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: 'Weekly Groceries',
-      amount: 16.53,
-      date: DateTime.now(),
-    ),
+  final List<Transaction> _userTransactions = [
+    // Transaction(
+    //   id: 't1',
+    //   title: 'New Shoes',
+    //   amount: 90.99,
+    //   date: DateTime.now(),
+    // ),
+    // Transaction(
+    //   id: 't2',
+    //   title: 'Weekly Groceries',
+    //   amount: 16.53,
+    //   date: DateTime.now(),
+    // ),
   ];
+
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
+    }).toList();
+  }
+
   void _addNewTransaction(String txTitle, double amount) {
     final newTx = Transaction(
       amount: amount,
@@ -44,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     setState(() {
-      _userTransaction.add(newTx);
+      _userTransactions.add(newTx);
     });
   }
 
@@ -75,15 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Card(
-              color: Colors.blue,
-              child: Container(
-                width: double.infinity,
-                child: Text('Card'),
-              ),
-              elevation: 8,
-            ),
-            TransactionList(_userTransaction)
+            Chart(_recentTransactions),
+            TransactionList(_userTransactions)
           ],
         ),
       ),
